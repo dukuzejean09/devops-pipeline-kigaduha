@@ -12,13 +12,14 @@ terraform {
     }
   }
 
-  # Azure Storage Backend (uncomment after initial setup)
-  # backend "azurerm" {
-  #   resource_group_name  = "terraform-state-rg"
-  #   storage_account_name = "tfstatedevops"  # Must be globally unique
-  #   container_name       = "tfstate"
-  #   key                  = "devops-pipeline.tfstate"
-  # }
+  # Terraform Cloud Backend
+  cloud {
+    organization = "dukx-devops"
+    
+    workspaces {
+      name = "devops-pipeline-azure"
+    }
+  }
 }
 
 provider "azurerm" {
