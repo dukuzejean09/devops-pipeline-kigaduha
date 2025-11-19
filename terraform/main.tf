@@ -1,253 +1,204 @@
-# Terraform Configuration for DevOps Pipeline Infrastructure
+# Terraform Configuration for DevOps Pipeline Infrastructure - Azure
 
-terraform {
-  required_version = ">= 1.6.0"
-  
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-
-  # Backend configuration for state storage
-  backend "s3" {
-    bucket         = "devops-pipeline-terraform-state"
-    key            = "infrastructure/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    dynamodb_table = "terraform-state-lock"
-  }
-}
-
-provider "aws" {
-  region = var.aws_region
-
-  default_tags {
-    tags = {
-      Project     = "DevOps Pipeline"
-      Environment = var.environment
-      ManagedBy   = "Terraform"
-    }
-  }
-}
-
-# VPC Configuration
-resource "aws_vpc" "main" {
-  cidr_block           = var.vpc_cidr
-  enable_dns_hostnames = true
-  enable_dns_support   = true
+# Resource Group
+resource "azurerm_resource_group" "main" {
+  name     = "${var.project_name}-${var.environment}-rg"
+  location = var.location
 
   tags = {
-    Name = "${var.project_name}-vpc-${var.environment}"
+    Environment = var.environment
+    Project     = var.project_name
+    ManagedBy   = "Terraform"
   }
 }
 
-# Internet Gateway
-resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
+# Virtual Network
+resource "azurerm_virtual_network" "main" {
+  name                = "${var.project_name}-${var.environment}-vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
 
-  tags = {
-    Name = "${var.project_name}-igw-${var.environment}"
-  }
+  tags = azurerm_resource_group.main.tags
 }
 
-# Public Subnets
-resource "aws_subnet" "public" {
-  count                   = length(var.availability_zones)
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
-  availability_zone       = var.availability_zones[count.index]
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "${var.project_name}-public-subnet-${count.index + 1}-${var.environment}"
-  }
+# Subnet for VMs
+resource "azurerm_subnet" "vm_subnet" {
+  name                 = "vm-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Private Subnets
-resource "aws_subnet" "private" {
-  count             = length(var.availability_zones)
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + 10)
-  availability_zone = var.availability_zones[count.index]
+# Network Security Group
+resource "azurerm_network_security_group" "main" {
+  name                = "${var.project_name}-${var.environment}-nsg"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
 
-  tags = {
-    Name = "${var.project_name}-private-subnet-${count.index + 1}-${var.environment}"
+  security_rule {
+    name                       = "Allow-SSH"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "Allow-HTTP"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Allow-HTTPS"
+    priority                   = 120
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "Allow-Backend"
+    priority                   = 130
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "5000"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = azurerm_resource_group.main.tags
 }
 
-# Route Table for Public Subnets
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main.id
-  }
-
-  tags = {
-    Name = "${var.project_name}-public-rt-${var.environment}"
-  }
+# Associate NSG with Subnet
+resource "azurerm_subnet_network_security_group_association" "main" {
+  subnet_id                 = azurerm_subnet.vm_subnet.id
+  network_security_group_id = azurerm_network_security_group.main.id
 }
 
-# Route Table Association
-resource "aws_route_table_association" "public" {
-  count          = length(aws_subnet.public)
-  subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public.id
+# Public IP for VM
+resource "azurerm_public_ip" "main" {
+  name                = "${var.project_name}-${var.environment}-pip"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  tags = azurerm_resource_group.main.tags
 }
 
-# Security Group for Application Load Balancer
-resource "aws_security_group" "alb" {
-  name        = "${var.project_name}-alb-sg-${var.environment}"
-  description = "Security group for Application Load Balancer"
-  vpc_id      = aws_vpc.main.id
+# Network Interface
+resource "azurerm_network_interface" "main" {
+  name                = "${var.project_name}-${var.environment}-nic"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.vm_subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.main.id
   }
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-alb-sg-${var.environment}"
-  }
+  tags = azurerm_resource_group.main.tags
 }
 
-# Security Group for Application
-resource "aws_security_group" "app" {
-  name        = "${var.project_name}-app-sg-${var.environment}"
-  description = "Security group for application instances"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  ingress {
-    from_port       = 5000
-    to_port         = 5000
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id]
-  }
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.ssh_allowed_ips
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-app-sg-${var.environment}"
-  }
+# SSH Key
+resource "azurerm_ssh_public_key" "main" {
+  name                = "${var.project_name}-${var.environment}-sshkey"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  public_key          = var.ssh_public_key
 }
 
-# Application Load Balancer
-resource "aws_lb" "main" {
-  name               = "${var.project_name}-alb-${var.environment}"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+# Virtual Machine
+resource "azurerm_linux_virtual_machine" "main" {
+  name                = "${var.project_name}-${var.environment}-vm"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  size                = var.vm_size
+  admin_username      = var.admin_username
 
-  enable_deletion_protection = var.environment == "production" ? true : false
+  network_interface_ids = [
+    azurerm_network_interface.main.id,
+  ]
 
-  tags = {
-    Name = "${var.project_name}-alb-${var.environment}"
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = azurerm_ssh_public_key.main.public_key
   }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    disk_size_gb         = 30
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  tags = azurerm_resource_group.main.tags
 }
 
-# ECR Repository for Frontend
-resource "aws_ecr_repository" "frontend" {
-  name                 = "${var.project_name}-frontend"
-  image_tag_mutability = "MUTABLE"
+# Container Registry
+resource "azurerm_container_registry" "main" {
+  name                = replace("${var.project_name}${var.environment}acr", "-", "")
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  sku                 = "Basic"
+  admin_enabled       = true
 
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Name = "${var.project_name}-frontend-ecr"
-  }
+  tags = azurerm_resource_group.main.tags
 }
 
-# ECR Repository for Backend
-resource "aws_ecr_repository" "backend" {
-  name                 = "${var.project_name}-backend"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Name = "${var.project_name}-backend-ecr"
-  }
+# Role assignment for VM to pull from ACR
+resource "azurerm_role_assignment" "acr_pull" {
+  scope                = azurerm_container_registry.main.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_linux_virtual_machine.main.identity[0].principal_id
 }
 
-# S3 Bucket for Application Assets
-resource "aws_s3_bucket" "assets" {
-  bucket = "${var.project_name}-assets-${var.environment}-${data.aws_caller_identity.current.account_id}"
+# Storage Account for logs and backups
+resource "azurerm_storage_account" "main" {
+  name                     = "${replace(var.project_name, "-", "")}${var.environment}sa${random_string.storage_suffix.result}"
+  resource_group_name      = azurerm_resource_group.main.name
+  location                 = azurerm_resource_group.main.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  min_tls_version          = "TLS1_2"
 
-  tags = {
-    Name = "${var.project_name}-assets-${var.environment}"
-  }
+  tags = azurerm_resource_group.main.tags
 }
 
-# S3 Bucket Versioning
-resource "aws_s3_bucket_versioning" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
+# Storage Container for application data
+resource "azurerm_storage_container" "app_data" {
+  name                  = "application-data"
+  storage_account_name  = azurerm_storage_account.main.name
+  container_access_type = "private"
 }
 
-# S3 Bucket Encryption
-resource "aws_s3_bucket_server_side_encryption_configuration" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-# Data source for current AWS account
-data "aws_caller_identity" "current" {}

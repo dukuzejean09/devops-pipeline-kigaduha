@@ -1,75 +1,65 @@
-# Variable Definitions for Terraform Configuration
+# Variable Definitions for Terraform Configuration - Azure
 
-variable "aws_region" {
-  description = "AWS region for resources"
+# Azure Authentication Variables
+variable "subscription_id" {
+  description = "Azure Subscription ID"
   type        = string
-  default     = "us-east-1"
+  sensitive   = true
+}
+
+variable "client_id" {
+  description = "Azure Client ID (App ID from Service Principal)"
+  type        = string
+  sensitive   = true
+}
+
+variable "client_secret" {
+  description = "Azure Client Secret (Password from Service Principal)"
+  type        = string
+  sensitive   = true
+}
+
+variable "tenant_id" {
+  description = "Azure Tenant ID"
+  type        = string
+  sensitive   = true
+}
+
+# Infrastructure Variables
+variable "location" {
+  description = "Azure region for resources"
+  type        = string
+  default     = "East US"
 }
 
 variable "environment" {
   description = "Environment name (e.g., dev, staging, production)"
   type        = string
-  default     = "production"
+  default     = "dev"
 }
 
 variable "project_name" {
   description = "Project name used for resource naming"
   type        = string
-  default     = "devops-pipeline"
+  default     = "devopspipeline"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for VPC"
+variable "vm_size" {
+  description = "Size of the virtual machine"
   type        = string
-  default     = "10.0.0.0/16"
+  default     = "Standard_B2s"
 }
 
-variable "availability_zones" {
-  description = "List of availability zones"
-  type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"]
-}
-
-variable "ssh_allowed_ips" {
-  description = "List of IP addresses allowed to SSH"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
-}
-
-variable "instance_type" {
-  description = "EC2 instance type"
+variable "admin_username" {
+  description = "Admin username for the VM"
   type        = string
-  default     = "t3.medium"
+  default     = "azureuser"
 }
 
-variable "min_size" {
-  description = "Minimum number of instances in Auto Scaling Group"
-  type        = number
-  default     = 2
-}
-
-variable "max_size" {
-  description = "Maximum number of instances in Auto Scaling Group"
-  type        = number
-  default     = 4
-}
-
-variable "desired_capacity" {
-  description = "Desired number of instances in Auto Scaling Group"
-  type        = number
-  default     = 2
-}
-
-variable "enable_monitoring" {
-  description = "Enable detailed monitoring"
-  type        = bool
-  default     = true
-}
-
-variable "backup_retention_days" {
-  description = "Number of days to retain backups"
-  type        = number
-  default     = 7
+variable "ssh_public_key" {
+  description = "SSH public key for VM access"
+  type        = string
+  sensitive   = true
 }
 
 variable "tags" {

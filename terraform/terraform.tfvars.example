@@ -1,25 +1,30 @@
-# Example Terraform Variables File
-# Copy this file to terraform.tfvars and update with your values
+# Terraform Variables Example File for Azure
+# Copy this file to terraform.tfvars and fill in your values
+# DO NOT commit terraform.tfvars to version control!
 
-aws_region = "us-east-1"
-environment = "production"
-project_name = "devops-pipeline"
+# Azure Service Principal Credentials
+# Get these from: az ad sp create-for-rbac --name "terraform-sp" --role Contributor
+subscription_id = "f6ade690-722f-42c6-8f3d-800249ece624"
+client_id       = "e03ae4b2-0591-4a72-a14d-9cb2414be218"
+client_secret   = "YOUR_CLIENT_SECRET_HERE"  # Replace with actual password from SP creation
+tenant_id       = "fbb4c579-089a-42ec-bd9e-40b04d9c2cbd"
 
-vpc_cidr = "10.0.0.0/16"
-availability_zones = ["us-east-1a", "us-east-1b"]
+# Infrastructure Configuration
+project_name = "devopspipeline"
+environment  = "dev"
+location     = "East US"  # Options: "East US", "West Europe", "Southeast Asia", etc.
 
-# Restrict SSH access to specific IPs in production
-ssh_allowed_ips = ["YOUR_IP_ADDRESS/32"]
+# VM Configuration
+vm_size        = "Standard_B2s"  # Options: Standard_B1s, Standard_B2s, Standard_D2s_v3
+admin_username = "azureuser"
 
-instance_type = "t3.medium"
-min_size = 2
-max_size = 4
-desired_capacity = 2
+# SSH Public Key
+# Generate with: ssh-keygen -t rsa -b 4096 -f ~/.ssh/devops-pipeline
+# Then copy content of: cat ~/.ssh/devops-pipeline.pub
+ssh_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDXXXX... your-email@example.com"
 
-enable_monitoring = true
-backup_retention_days = 7
-
+# Additional Tags (optional)
 tags = {
-  Owner = "DevOps Team"
+  Owner      = "DevOps Team"
   CostCenter = "Engineering"
 }

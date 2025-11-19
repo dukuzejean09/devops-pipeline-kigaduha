@@ -1,63 +1,76 @@
-# Output Values from Terraform Configuration
+# Output Values from Terraform Configuration - Azure
 
-output "vpc_id" {
-  description = "ID of the VPC"
-  value       = aws_vpc.main.id
+output "resource_group_name" {
+  description = "Name of the resource group"
+  value       = azurerm_resource_group.main.name
 }
 
-output "public_subnet_ids" {
-  description = "IDs of public subnets"
-  value       = aws_subnet.public[*].id
+output "resource_group_location" {
+  description = "Location of the resource group"
+  value       = azurerm_resource_group.main.location
 }
 
-output "private_subnet_ids" {
-  description = "IDs of private subnets"
-  value       = aws_subnet.private[*].id
+output "vm_public_ip" {
+  description = "Public IP address of the VM"
+  value       = azurerm_public_ip.main.ip_address
 }
 
-output "alb_dns_name" {
-  description = "DNS name of the Application Load Balancer"
-  value       = aws_lb.main.dns_name
+output "vm_name" {
+  description = "Name of the virtual machine"
+  value       = azurerm_linux_virtual_machine.main.name
 }
 
-output "alb_arn" {
-  description = "ARN of the Application Load Balancer"
-  value       = aws_lb.main.arn
+output "vm_id" {
+  description = "ID of the virtual machine"
+  value       = azurerm_linux_virtual_machine.main.id
 }
 
-output "alb_security_group_id" {
-  description = "Security Group ID for ALB"
-  value       = aws_security_group.alb.id
+output "acr_login_server" {
+  description = "Login server for the container registry"
+  value       = azurerm_container_registry.main.login_server
 }
 
-output "app_security_group_id" {
-  description = "Security Group ID for application"
-  value       = aws_security_group.app.id
+output "acr_name" {
+  description = "Name of the container registry"
+  value       = azurerm_container_registry.main.name
 }
 
-output "frontend_ecr_repository_url" {
-  description = "URL of the frontend ECR repository"
-  value       = aws_ecr_repository.frontend.repository_url
+output "acr_admin_username" {
+  description = "Admin username for ACR"
+  value       = azurerm_container_registry.main.admin_username
+  sensitive   = true
 }
 
-output "backend_ecr_repository_url" {
-  description = "URL of the backend ECR repository"
-  value       = aws_ecr_repository.backend.repository_url
+output "acr_admin_password" {
+  description = "Admin password for ACR"
+  value       = azurerm_container_registry.main.admin_password
+  sensitive   = true
 }
 
-output "s3_assets_bucket_name" {
-  description = "Name of the S3 assets bucket"
-  value       = aws_s3_bucket.assets.bucket
+output "storage_account_name" {
+  description = "Name of the storage account"
+  value       = azurerm_storage_account.main.name
 }
 
-output "s3_assets_bucket_arn" {
-  description = "ARN of the S3 assets bucket"
-  value       = aws_s3_bucket.assets.arn
+output "storage_account_primary_access_key" {
+  description = "Primary access key for storage account"
+  value       = azurerm_storage_account.main.primary_access_key
+  sensitive   = true
 }
 
-output "aws_region" {
-  description = "AWS region where resources are deployed"
-  value       = var.aws_region
+output "vnet_name" {
+  description = "Name of the virtual network"
+  value       = azurerm_virtual_network.main.name
+}
+
+output "vnet_id" {
+  description = "ID of the virtual network"
+  value       = azurerm_virtual_network.main.id
+}
+
+output "ssh_command" {
+  description = "SSH command to connect to the VM"
+  value       = "ssh ${var.admin_username}@${azurerm_public_ip.main.ip_address}"
 }
 
 output "environment" {
