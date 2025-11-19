@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
     
     services:
       postgres:
@@ -51,17 +57,16 @@ jobs:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db?schema=public
         run: npm run db:seed
 
-      - name: Verify database setup
+      - name: Run database tests
         env:
           DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db?schema=public
-        run: |
-          echo "Database setup complete"
-          npx prisma studio --browser none &
-          sleep 2
-          echo "Prisma Studio started successfully"
+        run: npm run db:test
 
   build:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code
