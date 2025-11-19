@@ -12,8 +12,9 @@ A fully functional REST API for task management with JWT authentication, built w
 - **Task CRUD Operations**: Complete task management (Create, Read, Update, Delete)
 - **Task Fields**: Title, description, status, priority, due date, assignee, labels
 - **API Documentation**: Interactive Swagger/OpenAPI docs
+- **Rate Limiting**: Protection against brute-force attacks and API abuse
 - **Docker Support**: Full containerization with docker-compose
-- **Automated Testing**: Comprehensive Jest test suite
+- **Automated Testing**: Comprehensive Jest test suite (25 tests, 88%+ coverage)
 - **Code Quality**: ESLint with Airbnb style guide
 - **CI/CD**: GitHub Actions workflows for automated testing and linting
 
@@ -22,7 +23,7 @@ A fully functional REST API for task management with JWT authentication, built w
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB with Mongoose ODM
 - **Authentication**: JWT (jsonwebtoken)
-- **Security**: Helmet, bcryptjs, CORS
+- **Security**: Helmet, bcryptjs, CORS, express-rate-limit
 - **Validation**: express-validator
 - **Testing**: Jest, Supertest
 - **Documentation**: Swagger (swagger-jsdoc, swagger-ui-express)
@@ -274,12 +275,16 @@ docker run -d \
 
 ## 🔒 Security
 
-- Passwords are hashed using bcryptjs
-- JWT tokens for stateless authentication
-- Helmet.js for HTTP security headers
-- CORS configuration
-- Input validation with express-validator
-- MongoDB injection protection via Mongoose
+- **Password Security**: Passwords are hashed using bcryptjs with salt rounds
+- **JWT Authentication**: Stateless authentication with token expiration
+- **Rate Limiting**: 
+  - API endpoints: 100 requests per 15 minutes per IP
+  - Auth endpoints: 5 attempts per 15 minutes per IP (protection against brute-force)
+- **HTTP Security**: Helmet.js for security headers
+- **CORS Configuration**: Configurable cross-origin resource sharing
+- **Input Validation**: Server-side validation with express-validator
+- **MongoDB Injection Protection**: Mongoose ODM prevents NoSQL injection
+- **Security Scanning**: CodeQL analysis with zero vulnerabilities
 
 ## 🤝 Contributing
 
