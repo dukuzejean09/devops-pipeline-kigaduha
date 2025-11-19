@@ -1,0 +1,40 @@
+---
+# Ansible Playbook for Deploying DevOps Pipeline Application
+
+- name: Deploy DevOps Pipeline Application
+  hosts: webservers
+  become: yes
+  gather_facts: yes
+
+  vars:
+    docker_image_tag: "{{ docker_image_tag | default('latest') }}"
+    app_user: "appuser"
+    app_directory: "/opt/devops-pipeline"
+    frontend_port: 80
+    backend_port: 5000
+
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+  roles:
+    - common
+    - docker
+    - application
+
+  post_tasks:
+    - name: Verify application is running
+      uri:
+        url: "http://localhost:{{ backend_port }}/health"
+        status_code: 200
+      retries: 5
+      delay: 10
+      register: result
+      until: result.status == 200
+
+    - name: Display deployment status
+      debug:
+        msg: "Application deployed successfully with image tag {{ docker_image_tag }}"

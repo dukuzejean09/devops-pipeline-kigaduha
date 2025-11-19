@@ -1,0 +1,81 @@
+---
+# Application Deployment Tasks
+
+- name: Pull Docker images
+  docker_image:
+    name: "{{ item.name }}"
+    tag: "{{ docker_image_tag }}"
+    source: pull
+  loop:
+    - { name: "ghcr.io/dukuzejean09/devops-pipeline-frontend" }
+    - { name: "ghcr.io/dukuzejean09/devops-pipeline-backend" }
+  register: pull_result
+
+- name: Stop existing containers
+  docker_container:
+    name: "{{ item }}"
+    state: absent
+  loop:
+    - devops-frontend
+    - devops-backend
+  ignore_errors: yes
+
+- name: Deploy backend container
+  docker_container:
+    name: devops-backend
+    image: "ghcr.io/dukuzejean09/devops-pipeline-backend:{{ docker_image_tag }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ backend_port }}:5000"
+    networks:
+      - name: devops-pipeline-network
+    env:
+      ENVIRONMENT: "{{ environment | default('production') }}"
+      PORT: "5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    log_driver: json-file
+    log_options:
+      max-size: "10m"
+      max-file: "3"
+
+- name: Deploy frontend container
+  docker_container:
+    name: devops-frontend
+    image: "ghcr.io/dukuzejean09/devops-pipeline-frontend:{{ docker_image_tag }}"
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ frontend_port }}:80"
+    networks:
+      - name: devops-pipeline-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    log_driver: json-file
+    log_options:
+      max-size: "10m"
+      max-file: "3"
+
+- name: Wait for backend to be healthy
+  uri:
+    url: "http://localhost:{{ backend_port }}/health"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 5
+
+- name: Clean up old Docker images
+  docker_prune:
+    images: yes
+    images_filters:
+      dangling: true

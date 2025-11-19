@@ -1,0 +1,15 @@
+# Trivy Ignore File
+# Add vulnerability IDs that should be ignored during scanning
+# Format: CVE-ID or vulnerability ID with optional comment
+
+# Example: Ignore specific CVE with expiration date
+# CVE-2021-12345 exp:2024-12-31
+
+# Low severity issues that are accepted
+# Add your exceptions below with justification comments
+
+# Development dependencies vulnerabilities (non-production)
+# CVE-XXXX-XXXX exp:2025-12-31
+
+# Known false positives
+# Add any known false positives here

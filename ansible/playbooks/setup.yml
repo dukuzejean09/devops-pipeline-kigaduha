@@ -1,0 +1,17 @@
+---
+# System Setup and Configuration Playbook
+
+- name: Setup and configure servers
+  hosts: all
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - common
+    - security
+    - monitoring
+
+  tasks:
+    - name: Display setup completion message
+      debug:
+        msg: "Server setup completed successfully on {{ inventory_hostname }}"

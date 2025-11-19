@@ -1,0 +1,12 @@
+---
+# Security role handlers
+
+- name: Restart fail2ban
+  service:
+    name: fail2ban
+    state: restarted
+
+- name: Restart SSH
+  service:
+    name: sshd
+    state: restarted

@@ -1,0 +1,6 @@
+---
+# Common role default variables
+
+app_user: "appuser"
+app_directory: "/opt/devops-pipeline"
+timezone: "UTC"
