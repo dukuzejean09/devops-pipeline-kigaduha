@@ -14,10 +14,10 @@ terraform {
 
   # Terraform Cloud Backend
   cloud {
-    organization = "dukx-devops"
+    organization = "dukx"
     
     workspaces {
-      name = "devops-pipeline-azure"
+      name = "devops-pipeline-infrastructure"
     }
   }
 }
