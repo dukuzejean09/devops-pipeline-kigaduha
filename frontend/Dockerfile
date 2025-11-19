@@ -12,6 +12,9 @@ RUN npm ci --only=production
 # Copy source code
 COPY . .
 
+# Set API URL to empty string for relative paths (will use nginx proxy)
+ENV REACT_APP_API_URL=
+
 # Build the application
 RUN npm run build
 
