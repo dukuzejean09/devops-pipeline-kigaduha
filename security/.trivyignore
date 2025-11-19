@@ -1,15 +1,69 @@
 # Trivy Ignore File
-# Add vulnerability IDs that should be ignored during scanning
-# Format: CVE-ID or vulnerability ID with optional comment
+# This file contains CVEs that should be ignored during security scanning
+# Format: CVE-YYYY-XXXXX [exp:YYYY-MM-DD] followed by comment with justification
 
-# Example: Ignore specific CVE with expiration date
-# CVE-2021-12345 exp:2024-12-31
+# =============================================================================
+# INSTRUCTIONS
+# =============================================================================
+# Add CVEs below with clear justification for why they are being ignored.
+# 
+# Format Options:
+#   CVE-YYYY-XXXXX                    # Ignore permanently
+#   CVE-YYYY-XXXXX exp:2025-12-31    # Ignore until expiration date
+#
+# Valid reasons include:
+# - False positive (CVE doesn't affect our usage)
+# - No fix available yet (with plan to revisit)
+# - Accepted risk (with business approval)
+# - Applies to dev dependencies only (not in production)
+# - Vulnerability in transitive dependency with no direct fix
+#
+# Example entries:
+# CVE-2023-12345 exp:2025-06-30
+# Justification: False positive - vulnerability in unused module path
+#
+# CVE-2023-67890 exp:2025-03-31
+# Justification: No fix available - monitoring upstream for patch
+# =============================================================================
 
-# Low severity issues that are accepted
-# Add your exceptions below with justification comments
+# Development Dependencies (not shipped to production)
+# -----------------------------------------------------------------------------
+# Add CVEs that only affect development/test dependencies here
+# These packages are not included in production builds
 
-# Development dependencies vulnerabilities (non-production)
-# CVE-XXXX-XXXX exp:2025-12-31
 
-# Known false positives
-# Add any known false positives here
+# False Positives
+# -----------------------------------------------------------------------------
+# Add CVEs that are false positives for our specific use case here
+
+
+# No Fix Available
+# -----------------------------------------------------------------------------
+# Add CVEs without available fixes here (include date and plan to revisit)
+
+
+# Accepted Risks
+# -----------------------------------------------------------------------------
+# Add CVEs with accepted business risk here (requires approval and documentation)
+
+
+# Transitive Dependencies
+# -----------------------------------------------------------------------------
+# Add CVEs in transitive dependencies where no direct fix is available
+
+
+# Low Severity - Accepted
+# -----------------------------------------------------------------------------
+# Add low severity CVEs that have been reviewed and accepted
+
+
+# =============================================================================
+# MAINTENANCE GUIDELINES
+# =============================================================================
+# - Review this file regularly (monthly recommended)
+# - Remove entries once fixes become available
+# - Update expiration dates for temporary ignores
+# - Document approval for accepted risks with ticket/issue numbers
+# - Keep justifications clear and detailed
+# - Use expiration dates for all non-permanent ignores
+# =============================================================================
