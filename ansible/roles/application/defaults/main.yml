@@ -1,7 +1,0 @@
----
-# Application role default variables
-
-docker_image_tag: "latest"
-frontend_port: 80
-backend_port: 5000
-environment: "production"

@@ -7,6 +7,7 @@ function App() {
   const [tasks, setTasks] = useState([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, in_progress: 0, completed: 0 });
   const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium' });
+  const [editingTask, setEditingTask] = useState(null);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -82,6 +83,34 @@ function App() {
       }
     } catch (err) {
       console.error('Error updating task:', err);
+    }
+  };
+
+  const handleEditTask = async e => {
+    e.preventDefault();
+    if (!editingTask.title.trim()) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/v1/tasks/${editingTask.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editingTask.title,
+          description: editingTask.description,
+          priority: editingTask.priority,
+        }),
+      });
+
+      if (response.ok) {
+        setEditingTask(null);
+        fetchTasks();
+        fetchStats();
+      }
+    } catch (err) {
+      console.error('Error updating task:', err);
+      setError('Failed to update task');
     }
   };
 
@@ -249,6 +278,9 @@ function App() {
                       <option value="completed">Completed</option>
                     </select>
 
+                    <button onClick={() => setEditingTask(task)} className="btn-edit">
+                      Edit
+                    </button>
                     <button onClick={() => handleDeleteTask(task.id)} className="btn-delete">
                       Delete
                     </button>
@@ -263,6 +295,45 @@ function App() {
           )}
         </div>
       </main>
+
+      {editingTask && (
+        <div className="modal-overlay" onClick={() => setEditingTask(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2>Edit Task</h2>
+            <form onSubmit={handleEditTask} className="task-form">
+              <input
+                type="text"
+                placeholder="Task title..."
+                value={editingTask.title}
+                onChange={e => setEditingTask({ ...editingTask, title: e.target.value })}
+                required
+              />
+              <textarea
+                placeholder="Task description..."
+                value={editingTask.description}
+                onChange={e => setEditingTask({ ...editingTask, description: e.target.value })}
+                rows="3"
+              />
+              <select
+                value={editingTask.priority}
+                onChange={e => setEditingTask({ ...editingTask, priority: e.target.value })}
+              >
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+              <div className="modal-buttons">
+                <button type="submit" className="btn-primary">
+                  Save Changes
+                </button>
+                <button type="button" onClick={() => setEditingTask(null)} className="btn-cancel">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,18 +12,8 @@ app.config["DEBUG"] = os.getenv("DEBUG", "False") == "True"
 app.config["ENV"] = os.getenv("ENVIRONMENT", "production")
 
 # In-memory task storage (replace with database in production)
-tasks = [
-    {
-        "id": 1,
-        "title": "Welcome to Task Manager",
-        "description": "This is your first task. Click to mark it as complete!",
-        "status": "pending",
-        "priority": "medium",
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
-    }
-]
-next_id = 2
+tasks = []
+next_id = 1
 
 
 @app.route("/")
