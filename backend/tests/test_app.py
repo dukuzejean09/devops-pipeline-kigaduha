@@ -21,19 +21,24 @@ def client():
 def auth_headers(client):
     """Create authentication headers with valid token"""
     # Register and login as a test user
-    client.post(
+    register_response = client.post(
         "/api/v1/auth/register",
         data=json.dumps({"username": "testuser", "password": "testpass123"}),
         content_type="application/json",
     )
 
-    response = client.post(
+    # If registration fails (user exists), that's ok - continue to login
+    login_response = client.post(
         "/api/v1/auth/login",
         data=json.dumps({"username": "testuser", "password": "testpass123"}),
         content_type="application/json",
     )
 
-    token = response.get_json()["token"]
+    login_data = login_response.get_json()
+    assert login_response.status_code == 200, f"Login failed: {login_data}"
+    assert "token" in login_data, f"No token in response: {login_data}"
+
+    token = login_data["token"]
     return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
 

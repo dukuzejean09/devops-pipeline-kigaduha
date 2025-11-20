@@ -24,6 +24,10 @@
     "react-hooks"
   ],
   "rules": {
+    "no-console": "off",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/prop-types": "off"
+  },
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "warn",
     "react/jsx-uses-react": "error",
