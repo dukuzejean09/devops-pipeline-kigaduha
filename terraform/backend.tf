@@ -16,14 +16,14 @@ terraform {
     }
   }
 
-  # Terraform Cloud Backend
-  cloud {
-    organization = "dukx"
-
-    workspaces {
-      name = "devops-pipeline-infrastructure"
-    }
-  }
+  # Terraform Cloud Backend (commented out for local/CI usage)
+  # Uncomment and configure if using Terraform Cloud
+  # cloud {
+  #   organization = "dukx"
+  #   workspaces {
+  #     name = "devops-pipeline-infrastructure"
+  #   }
+  # }
 }
 
 provider "azurerm" {

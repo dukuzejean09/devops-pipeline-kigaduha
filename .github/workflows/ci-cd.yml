@@ -158,7 +158,6 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Configure Azure credentials
         uses: azure/login@v2
@@ -175,7 +174,6 @@ jobs:
       - name: Terraform Init and Apply
         working-directory: ./terraform
         env:
-          TF_CLOUD_ORGANIZATION: ${{ secrets.TF_CLOUD_ORGANIZATION }}
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
