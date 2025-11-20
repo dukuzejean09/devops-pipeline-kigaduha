@@ -8,7 +8,7 @@ on:
 
 env:
   DOCKER_REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: pelino-courses/devops-pipeline-kigaduha
 
 jobs:
   # Frontend Build and Test
