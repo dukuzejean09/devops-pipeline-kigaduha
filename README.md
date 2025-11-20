@@ -1,4 +1,4 @@
-# 📋 Task Management App
+#  Task Management App
 
 A modern, full-stack task management application with a complete DevOps pipeline. Built with React (frontend) and Flask (backend), featuring CI/CD automation, infrastructure as code, and production-ready deployment configurations.
 
