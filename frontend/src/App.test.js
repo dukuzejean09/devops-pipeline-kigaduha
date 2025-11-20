@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from './App';
+import { AuthProvider } from './AuthContext';
 
 test('renders task management heading', () => {
-  render(<App />);
+  render(
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
   const heading = screen.getByText(/Task Management App/i);
   expect(heading).toBeInTheDocument();
 });
