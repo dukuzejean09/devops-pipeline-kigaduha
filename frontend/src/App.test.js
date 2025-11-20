@@ -14,7 +14,11 @@ test('renders task management heading', () => {
 });
 
 test('renders create new task section', () => {
-  render(<App />);
+  render(
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
   const createSection = screen.getByText(/Create New Task/i);
   expect(createSection).toBeInTheDocument();
 });
