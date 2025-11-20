@@ -200,8 +200,9 @@ jobs:
           # Initialize Terraform
           terraform init
 
-          # Apply with fresh state (refresh to detect missing resources)
+          # Apply with fresh state (force replace resource group to sync state)
           terraform apply -auto-approve -refresh=true \
+            -replace="azurerm_resource_group.main" \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
             -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
             -var="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
