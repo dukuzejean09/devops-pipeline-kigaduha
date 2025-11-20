@@ -236,14 +236,21 @@ jobs:
           DB_NAME: taskdb
           SECRET_KEY: ${{ secrets.APP_SECRET_KEY }}
         run: |
+          # Create static inventory with VM IP
+          mkdir -p inventory
+          cat > inventory/hosts.ini <<EOF
+          [azure_vms]
+          ${{ steps.tf_output.outputs.vm_public_ip }} ansible_user=azureuser ansible_ssh_private_key_file=~/.ssh/id_rsa ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+          EOF
+
           # Wait for VM to be ready
           sleep 60
 
           # Test connectivity
-          ansible all -m ping -i inventory/azure_rm.yml
+          ansible all -m ping -i inventory/hosts.ini
 
           # Deploy application
-          ansible-playbook playbooks/setup-server.yml -i inventory/azure_rm.yml -vv
+          ansible-playbook playbooks/setup-server.yml -i inventory/hosts.ini -vv
 
       - name: Display deployment URL
         run: |
