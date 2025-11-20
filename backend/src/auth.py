@@ -36,7 +36,7 @@ def initialize_admin():
             "id": user_id_counter,
             "username": "admin",
             "email": "admin@taskmanager.com",
-            "password": hash_password("admin123"),
+            "password": hash_password("admin@123"),
             "role": "admin",
             "created_at": datetime.now().isoformat(),
         }

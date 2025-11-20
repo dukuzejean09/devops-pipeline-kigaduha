@@ -13,13 +13,12 @@ from src.app import app
 def client():
     """Create test client"""
     app.config["TESTING"] = True
-    # Clear users dict before each test
-    from src.auth import users
+    # Clear users dict and reset counter before each test
+    from src import auth
 
-    users.clear()
-    from src.auth import initialize_admin
-
-    initialize_admin()  # Re-initialize admin user
+    auth.users.clear()
+    auth.user_id_counter = 1  # Reset counter
+    auth.initialize_admin()  # Re-initialize admin user with ID 1
     with app.test_client() as client:
         yield client
 
