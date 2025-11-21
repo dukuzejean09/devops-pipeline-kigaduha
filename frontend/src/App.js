@@ -222,7 +222,7 @@ function App() {
         <div className="user-info">
           {user?.role === 'admin' && (
             <button onClick={() => setShowAdmin(true)} className="btn-admin">
-              👑 Admin Panel
+              Admin Panel
             </button>
           )}
           <span className="welcome-text">Welcome, {user?.username}!</span>
