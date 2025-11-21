@@ -204,6 +204,17 @@ jobs:
           # Initialize Terraform
           terraform init
 
+          # Import existing resources if they exist but aren't in state
+          echo "🔍 Checking if resources need to be imported..."
+
+          # Check if resource group is in state
+          if ! terraform state list 2>/dev/null | grep -q "azurerm_resource_group.main"; then
+            if az group exists --name devopspipeline-dev-rg | grep -q true; then
+              echo "📥 Importing existing resource group into state..."
+              terraform import azurerm_resource_group.main /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/devopspipeline-dev-rg || true
+            fi
+          fi
+
           # Apply with refresh to sync any existing infrastructure
           # No -replace flags = infrastructure is preserved across deployments
           terraform apply -auto-approve \
