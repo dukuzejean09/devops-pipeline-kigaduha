@@ -206,12 +206,24 @@ jobs:
 
           # Import existing resources if they exist but aren't in state
           echo "🔍 Checking if resources need to be imported..."
-
-          # Check if resource group is in state
+          # Delete orphaned resources (faster than import which hangs)
+          echo "🔍 Checking for orphaned resources..."
           if ! terraform state list 2>/dev/null | grep -q "azurerm_resource_group.main"; then
             if az group exists --name devopspipeline-dev-rg | grep -q true; then
-              echo "📥 Importing existing resource group into state..."
-              terraform import azurerm_resource_group.main /subscriptions/${{ secrets.AZURE_SUBSCRIPTION_ID }}/resourceGroups/devopspipeline-dev-rg || true
+              echo "🗑️ Deleting orphaned resource group..."
+              az group delete --name devopspipeline-dev-rg --yes --no-wait
+              for i in {1..30}; do
+                if az group exists --name devopspipeline-dev-rg | grep -q false; then
+                  echo "✅ Cleanup complete"
+                  break
+                fi
+                sleep 10
+              done
+            fi
+          else
+            echo "✅ Resources properly tracked"
+          fi
+
             fi
           fi
 
