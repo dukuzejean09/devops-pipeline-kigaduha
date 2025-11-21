@@ -6,18 +6,19 @@
 
 .App {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
 }
 
 .App-header {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  padding: 2rem;
-  color: white;
+  padding: 1.5rem 2rem;
+  color: #1e3a8a;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-bottom: 3px solid #3b82f6;
 }
 
 .App-header > div:first-child {
@@ -28,11 +29,16 @@
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
   font-weight: 700;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .App-header p {
   font-size: 1.1rem;
-  opacity: 0.9;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .user-info {
@@ -43,39 +49,44 @@
 
 .welcome-text {
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
+  color: #1e3a8a;
 }
 
 .btn-logout,
 .btn-admin,
 .btn-switch {
-  background: rgba(255, 255, 255, 0.2);
+  background: #3b82f6;
   color: white;
-  border: 2px solid white;
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
+  border: 2px solid #3b82f6;
+  padding: 0.7rem 1.8rem;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
 }
 
 .btn-logout:hover,
 .btn-admin:hover,
 .btn-switch:hover {
-  background: white;
-  color: #667eea;
-  transform: translateY(-2px);
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(30, 58, 138, 0.4);
 }
 
 .btn-admin {
-  background: rgba(255, 215, 0, 0.3);
-  border-color: #ffd700;
+  background: #f59e0b;
+  border-color: #f59e0b;
+  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
 }
 
 .btn-admin:hover {
-  background: #ffd700;
-  color: #333;
+  background: #d97706;
+  border-color: #d97706;
+  box-shadow: 0 6px 12px rgba(217, 119, 6, 0.4);
 }
 
 .error-message {
@@ -99,42 +110,56 @@
 
 .stat-card {
   background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
+  padding: 2rem;
+  border-radius: 16px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+  border-color: #3b82f6;
 }
 
 .stat-card h3 {
-  font-size: 2.5rem;
-  color: #1f2937;
+  font-size: 3rem;
+  font-weight: 800;
   margin-bottom: 0.5rem;
 }
 
 .stat-card p {
-  color: #6b7280;
-  font-weight: 500;
+  color: #64748b;
+  font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
 }
 
 .stat-card.pending h3 {
-  color: #6b7280;
+  color: #94a3b8;
+}
+
+.stat-card.pending {
+  border-left: 4px solid #94a3b8;
 }
 
 .stat-card.in-progress h3 {
   color: #3b82f6;
 }
 
+.stat-card.in-progress {
+  border-left: 4px solid #3b82f6;
+}
+
 .stat-card.completed h3 {
   color: #10b981;
+}
+
+.stat-card.completed {
+  border-left: 4px solid #10b981;
 }
 
 .content {
@@ -145,58 +170,82 @@
 
 .task-form-container {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   margin-bottom: 2rem;
+  border-top: 4px solid #3b82f6;
 }
 
 .task-form-container h2 {
-  color: #1f2937;
+  color: #1e3a8a;
   margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
 .task-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .task-form input,
 .task-form textarea,
 .task-form select {
-  padding: 0.75rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 1.05rem;
   font-family: inherit;
-  transition: border-color 0.2s;
+  transition: all 0.3s ease;
+  background: #f8fafc;
 }
 
 .task-form input:focus,
 .task-form textarea:focus,
 .task-form select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.task-form input:hover,
+.task-form textarea:hover,
+.task-form select:hover {
+  border-color: #94a3b8;
 }
 
 .task-form textarea {
   resize: vertical;
+  min-height: 120px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   border: none;
-  padding: 0.875rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 1rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
 }
 
 .btn-primary:hover {
@@ -210,46 +259,53 @@
 
 .tasks-section {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-top: 4px solid #10b981;
 }
 
 .filter-buttons {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  gap: 1rem;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
 }
 
 .filter-buttons button {
-  padding: 0.5rem 1.25rem;
-  border: 2px solid #e5e7eb;
-  background: white;
-  border-radius: 20px;
+  padding: 0.75rem 1.75rem;
+  border: 2px solid #cbd5e1;
+  background: #f8fafc;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: 500;
-  color: #6b7280;
-  transition: all 0.2s;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  color: #475569;
 }
 
 .filter-buttons button:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #3b82f6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
 }
 
 .filter-buttons button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  border-color: transparent;
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .loading,
 .no-tasks {
   text-align: center;
-  color: #6b7280;
+  color: #64748b;
   padding: 3rem;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .tasks-list {
@@ -258,15 +314,18 @@
 }
 
 .task-card {
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  background: #f8fafc;
 }
 
 .task-card:hover {
-  border-color: #667eea;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+  transform: translateY(-4px);
+  background: white;
 }
 
 .task-header {
@@ -308,62 +367,98 @@
 
 .status-select {
   flex: 1;
-  padding: 0.5rem;
-  border: 2px solid;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
   background: white;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  color: #1e3a8a;
+}
+
+.status-select:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.15);
 }
 
 .status-select:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
 }
 
 .btn-edit {
   background: #3b82f6;
   color: white;
   border: none;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   margin-left: 0.5rem;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 }
 
 .btn-edit:hover {
   background: #2563eb;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+}
+
+.btn-edit:active {
+  transform: translateY(-1px);
 }
 
 .btn-delete {
   background: #ef4444;
   color: white;
   border: none;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   margin-left: 0.5rem;
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
 .btn-delete:hover {
   background: #dc2626;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(220, 38, 38, 0.4);
+}
+
+.btn-delete:active {
+  transform: translateY(-1px);
 }
 
 .btn-cancel {
-  background: #6b7280;
+  background: #64748b;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.05rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(100, 116, 139, 0.3);
+}
+
+.btn-cancel:hover {
+  background: #475569;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(71, 85, 105, 0.4);
+}
+
+.btn-cancel:active {
+  transform: translateY(-1px);
+}
   transition: all 0.2s;
   margin-left: 0.5rem;
 }
