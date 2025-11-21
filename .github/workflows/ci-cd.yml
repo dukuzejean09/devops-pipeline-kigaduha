@@ -171,38 +171,9 @@ jobs:
           fi
           echo "SSH_PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)" >> $GITHUB_ENV
 
-      - name: Check and cleanup orphaned resources
-        continue-on-error: true
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        run: |
-          echo "🔍 Checking for orphaned Azure resources..."
-          if az group exists --name devopspipeline-dev-rg | grep -q true; then
-            echo "⚠️ Found existing resource group. Checking Terraform state..."
-            cd terraform
-            terraform init
-            
-            # Check if resource group is in Terraform state
-            if ! terraform state list 2>/dev/null | grep -q "azurerm_resource_group.main"; then
-              echo "🗑️ Resource group orphaned - deleting to sync state..."
-              cd ..
-              az group delete --name devopspipeline-dev-rg --yes --no-wait
-              
-              echo "⏳ Waiting for deletion..."
-              for i in {1..60}; do
-                if az group exists --name devopspipeline-dev-rg | grep -q false; then
-                  echo "✅ Deleted after $((i*10))s"
-                  break
-                fi
-                sleep 10
-              done
-            else
-              echo "✅ Resource group properly tracked in state"
-            fi
-          fi
+      # Cleanup step removed - infrastructure is now persistent
+      # Resources will only be updated, not recreated
+      # This preserves the IP address and all data across deployments
 
       # Commented out to preserve infrastructure and keep same IP address
       # Uncomment this step only if you need to completely recreate infrastructure
@@ -234,15 +205,13 @@ jobs:
           terraform init
 
           # Apply with refresh to sync any existing infrastructure
-          # The -replace flag on random strings forces new values but keeps other resources
+          # No -replace flags = infrastructure is preserved across deployments
           terraform apply -auto-approve \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
             -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
             -var="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
             -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="ssh_public_key=${SSH_PUBLIC_KEY}" \
-            -replace="random_string.acr_suffix" \
-            -replace="random_string.storage_suffix"
+            -var="ssh_public_key=${SSH_PUBLIC_KEY}"
 
       - name: Get Terraform outputs
         id: tf_output
