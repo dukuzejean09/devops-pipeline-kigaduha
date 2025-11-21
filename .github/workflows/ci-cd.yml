@@ -204,8 +204,6 @@ jobs:
           # Initialize Terraform
           terraform init
 
-          # Import existing resources if they exist but aren't in state
-          echo "🔍 Checking if resources need to be imported..."
           # Delete orphaned resources (faster than import which hangs)
           echo "🔍 Checking for orphaned resources..."
           if ! terraform state list 2>/dev/null | grep -q "azurerm_resource_group.main"; then
@@ -222,9 +220,6 @@ jobs:
             fi
           else
             echo "✅ Resources properly tracked"
-          fi
-
-            fi
           fi
 
           # Apply with refresh to sync any existing infrastructure
