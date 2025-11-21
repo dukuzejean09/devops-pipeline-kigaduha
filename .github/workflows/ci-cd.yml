@@ -171,27 +171,23 @@ jobs:
           fi
           echo "SSH_PUBLIC_KEY=$(cat ~/.ssh/id_rsa.pub)" >> $GITHUB_ENV
 
-      - name: Clean up existing resources if needed
-        continue-on-error: true
-        run: |
-          # Check if resource group exists
-          if az group exists --name devopspipeline-dev-rg | grep -q true; then
-            echo "🗑️ Removing existing resource group to ensure clean deployment..."
-            az group delete --name devopspipeline-dev-rg --yes --no-wait
-            
-            # Wait for deletion to complete (poll until gone)
-            echo "⏳ Waiting for deletion to complete..."
-            for i in {1..60}; do
-              if az group exists --name devopspipeline-dev-rg | grep -q false; then
-                echo "✅ Resource group successfully deleted after $((i*10)) seconds"
-                break
-              fi
-              echo "Still deleting... ($((i*10))s elapsed)"
-              sleep 10
-            done
-          else
-            echo "✅ No existing resource group found. Proceeding with fresh deployment."
-          fi
+      # Commented out to preserve infrastructure and keep same IP address
+      # Uncomment this step only if you need to completely recreate infrastructure
+      # - name: Clean up existing resources if needed
+      #   continue-on-error: true
+      #   run: |
+      #     if az group exists --name devopspipeline-dev-rg | grep -q true; then
+      #       echo "🗑️ Removing existing resource group..."
+      #       az group delete --name devopspipeline-dev-rg --yes --no-wait
+      #       echo "⏳ Waiting for deletion..."
+      #       for i in {1..60}; do
+      #         if az group exists --name devopspipeline-dev-rg | grep -q false; then
+      #           echo "✅ Deleted after $((i*10))s"
+      #           break
+      #         fi
+      #         sleep 10
+      #       done
+      #     fi
 
       - name: Terraform Init and Apply
         working-directory: ./terraform
@@ -209,15 +205,8 @@ jobs:
           # Initialize Terraform
           terraform init
 
-          # Destroy any existing infrastructure to sync state
-          terraform destroy -auto-approve \
-            -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
-            -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
-            -var="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
-            -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="ssh_public_key=${SSH_PUBLIC_KEY}" || true
-
-          # Apply infrastructure
+          # Apply infrastructure (creates if not exists, updates if needed)
+          # This will NOT destroy existing resources, keeping your IP and data
           terraform apply -auto-approve \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
             -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
