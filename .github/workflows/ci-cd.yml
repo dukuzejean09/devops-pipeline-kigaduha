@@ -178,8 +178,17 @@ jobs:
           if az group exists --name devopspipeline-dev-rg | grep -q true; then
             echo "🗑️ Removing existing resource group to ensure clean deployment..."
             az group delete --name devopspipeline-dev-rg --yes --no-wait
+            
+            # Wait for deletion to complete (poll until gone)
             echo "⏳ Waiting for deletion to complete..."
-            sleep 120
+            for i in {1..60}; do
+              if az group exists --name devopspipeline-dev-rg | grep -q false; then
+                echo "✅ Resource group successfully deleted after $((i*10)) seconds"
+                break
+              fi
+              echo "Still deleting... ($((i*10))s elapsed)"
+              sleep 10
+            done
           else
             echo "✅ No existing resource group found. Proceeding with fresh deployment."
           fi
