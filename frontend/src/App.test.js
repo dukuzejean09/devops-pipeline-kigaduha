@@ -19,6 +19,6 @@ test('renders create new task section', () => {
       <App />
     </AuthProvider>
   );
-  const createSection = screen.getByText(/Create New Task/i);
+  const createSection = screen.getByText(/Add New Task/i);
   expect(createSection).toBeInTheDocument();
 });
