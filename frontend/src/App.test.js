@@ -13,12 +13,18 @@ test('renders task management heading', () => {
   expect(heading).toBeInTheDocument();
 });
 
-test('renders create new task section', () => {
+test('renders task form section', () => {
   render(
     <AuthProvider>
       <App />
     </AuthProvider>
   );
-  const createSection = screen.getByText(/Add New Task/i);
-  expect(createSection).toBeInTheDocument();
+  // Test for the form inputs instead of heading text
+  const titleInput = screen.getByPlaceholderText(/task title/i);
+  const descriptionInput = screen.getByPlaceholderText(/task description/i);
+  const submitButton = screen.getByRole('button', { name: /add task/i });
+
+  expect(titleInput).toBeInTheDocument();
+  expect(descriptionInput).toBeInTheDocument();
+  expect(submitButton).toBeInTheDocument();
 });
