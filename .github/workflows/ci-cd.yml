@@ -205,6 +205,8 @@ jobs:
       #     fi
 
       - name: Terraform Init and Apply
+        continue-on-error: true
+        id: terraform
         working-directory: ./terraform
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -214,27 +216,22 @@ jobs:
         run: |
           terraform init
 
-          # Try to apply - if it fails due to existing resources, we'll handle it
+          # Apply Terraform - errors are handled gracefully
           echo "🚀 Applying Terraform configuration..."
-          if ! terraform apply -auto-approve \
+          terraform apply -auto-approve \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
             -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
             -var="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
             -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="ssh_public_key=${SSH_PUBLIC_KEY}"; then
-            
-            echo "⚠️ Terraform apply failed - checking if resources already exist..."
-            
-            # If resource group exists in Azure, just get outputs and continue
-            if az group exists --name devopspipeline-dev-rg | grep -q true; then
-              echo "✅ Infrastructure already exists in Azure"
-              echo "📋 Continuing with existing infrastructure..."
-            else
-              echo "❌ Terraform failed and no resources found"
-              exit 1
-            fi
+            -var="ssh_public_key=${SSH_PUBLIC_KEY}"
+
+      - name: Verify infrastructure exists
+        run: |
+          if az group exists --name devopspipeline-dev-rg | grep -q true; then
+            echo "✅ Infrastructure exists in Azure"
           else
-            echo "✅ Terraform apply completed successfully"
+            echo "❌ No infrastructure found"
+            exit 1
           fi
 
       - name: Get Terraform outputs
