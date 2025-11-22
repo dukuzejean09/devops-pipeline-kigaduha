@@ -255,7 +255,7 @@ function App() {
 
       <main className="content">
         <div className="task-form-container">
-          <h2>Create New Task</h2>
+          <h2>Add New Task</h2>
           <form onSubmit={handleCreateTask} className="task-form">
             <input
               type="text"
