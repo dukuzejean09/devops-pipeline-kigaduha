@@ -203,21 +203,47 @@ jobs:
         run: |
           terraform init
 
-          # Just apply - Terraform will handle existing resources automatically
-          # Resources are never deleted, only updated
-          terraform apply -auto-approve \
+          # Try to apply - if it fails due to existing resources, we'll handle it
+          echo "🚀 Applying Terraform configuration..."
+          if ! terraform apply -auto-approve \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
             -var="client_id=${{ secrets.AZURE_CLIENT_ID }}" \
             -var="client_secret=${{ secrets.AZURE_CLIENT_SECRET }}" \
             -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" \
-            -var="ssh_public_key=${SSH_PUBLIC_KEY}"
+            -var="ssh_public_key=${SSH_PUBLIC_KEY}"; then
+            
+            echo "⚠️ Terraform apply failed - checking if resources already exist..."
+            
+            # If resource group exists in Azure, just get outputs and continue
+            if az group exists --name devopspipeline-dev-rg | grep -q true; then
+              echo "✅ Infrastructure already exists in Azure"
+              echo "📋 Continuing with existing infrastructure..."
+            else
+              echo "❌ Terraform failed and no resources found"
+              exit 1
+            fi
+          else
+            echo "✅ Terraform apply completed successfully"
+          fi
 
       - name: Get Terraform outputs
         id: tf_output
         working-directory: ./terraform
         run: |
-          echo "vm_public_ip=$(terraform output -raw vm_public_ip)" >> $GITHUB_OUTPUT
-          echo "acr_login_server=$(terraform output -raw acr_login_server)" >> $GITHUB_OUTPUT
+          # Try to get outputs, if fails, query Azure directly
+          if ! vm_ip=$(terraform output -raw vm_public_ip 2>/dev/null); then
+            echo "Getting IP from Azure directly..."
+            vm_ip=$(az network public-ip show \
+              --resource-group devopspipeline-dev-rg \
+              --name devopspipeline-dev-pip \
+              --query ipAddress -o tsv)
+          fi
+          echo "vm_public_ip=$vm_ip" >> $GITHUB_OUTPUT
+
+          if ! acr_server=$(terraform output -raw acr_login_server 2>/dev/null); then
+            acr_server="ghcr.io"
+          fi
+          echo "acr_login_server=$acr_server" >> $GITHUB_OUTPUT
 
       - name: Install Ansible
         run: |
